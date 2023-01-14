@@ -175,7 +175,7 @@ bool Board::check_move(int side, int from, int to) const {
       return false;
   }
 
-  if (has_point(1 - side, to))
+  if (to >= 0 && has_point(1 - side, 23 - to))
     return false;
 
   if (to < 0 && !can_bear_off(side))
@@ -184,19 +184,38 @@ bool Board::check_move(int side, int from, int to) const {
   return true;
 }
 
-void Board::make_move(int side, int from, int to) {
+bool Board::make_move(int side, int from, int to) {
   assert(check_move(side, from, to));
 
   pcs[side][from]--;
 
   if (to >= 0)
     pcs[side][to]++;
+
+  if (to >= 0 && has_blot(1 - side, 23 - to)) {
+    pcs[1 - side][23 - to]--;
+    pcs[1 - side][24]++;
+    return true;
+  }
+
+  return false;
 }
 
-void Board::unmake_move(int side, int from, int to) {
+void Board::unmake_move(int side, int from, int to, bool hit) {
+  if (hit) {
+    pcs[1 - side][23 - to]++;
+    pcs[1 - side][24]--;
+  }
   if (to >= 0) {
     pcs[side][to]--;
   }
 
   pcs[side][from]++;
+}
+
+void Board::make_fullmove(int side, const Move& m) {
+  int n = m.n;
+  for (int i = 0; i < n; i++) {
+    make_move(side, m.moves[i].first, m.moves[i].second);
+  }
 }

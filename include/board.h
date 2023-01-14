@@ -1,5 +1,7 @@
 #pragma once
 
+#include "move.h"
+
 #include <cstdint>
 #include <string>
 #include <tuple>
@@ -29,6 +31,8 @@ struct Board {
   bool has_point(int side, int pos) const;
   bool check_move(int side, int from, int to) const;
 
-  void make_move(int side, int from, int to);
-  void unmake_move(int side, int from, int to);
+  bool make_move(int side, int from, int to);
+  void unmake_move(int side, int from, int to, bool hit);
+
+  void make_fullmove(int side, const Move&);
 };

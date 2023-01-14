@@ -1,5 +1,6 @@
 #include "board.h"
 
+#include <cassert>
 #include <cstdlib>
 #include <cstring>
 
@@ -137,4 +138,65 @@ EncodedBoard Board::encode() const {
   }
 
   return b;
+}
+
+bool Board::on_bar(int side) const {
+  return pcs[side][24] != 0;
+}
+
+bool Board::can_bear_off(int side) const {
+  for (int i = 6; i < 25; i++) {
+    if (pcs[side][i] != 0)
+      return false;
+  }
+  return true;
+}
+
+bool Board::has_blot(int side, int pos) const {
+  return pos != 24 && pcs[side][pos] == 1;
+}
+
+bool Board::has_point(int side, int pos) const {
+  return pos != 24 && pcs[side][pos] > 1;
+}
+
+bool Board::check_move(int side, int from, int to) const {
+  if (from == to)
+    return false;
+
+  if (pcs[side][from] == 0)
+    return false;
+
+  if (from < 0 || from >= 25 || to >= 25)
+    return false;
+
+  if (on_bar(side)) {
+    if (from != 24)
+      return false;
+  }
+
+  if (has_point(1 - side, to))
+    return false;
+
+  if (to < 0 && !can_bear_off(side))
+    return false;
+
+  return true;
+}
+
+void Board::make_move(int side, int from, int to) {
+  assert(check_move(side, from, to));
+
+  pcs[side][from]--;
+
+  if (to >= 0)
+    pcs[side][to]++;
+}
+
+void Board::unmake_move(int side, int from, int to) {
+  if (to >= 0) {
+    pcs[side][to]--;
+  }
+
+  pcs[side][from]++;
 }

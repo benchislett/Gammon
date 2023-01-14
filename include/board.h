@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <tuple>
 #include <vector>
 
 struct EncodedBoard {
@@ -21,4 +22,13 @@ struct Board {
   Board(EncodedBoard);
 
   EncodedBoard encode() const;
+
+  bool on_bar(int side) const;
+  bool can_bear_off(int side) const;
+  bool has_blot(int side, int pos) const;
+  bool has_point(int side, int pos) const;
+  bool check_move(int side, int from, int to) const;
+
+  void make_move(int side, int from, int to);
+  void unmake_move(int side, int from, int to);
 };

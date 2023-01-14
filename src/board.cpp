@@ -60,19 +60,15 @@ std::string EncodedBoard::serialize() const {
 }
 
 Board::Board(bool standard) {
-  memset(white_pcs, 0, sizeof(white_pcs));
-  memset(black_pcs, 0, sizeof(black_pcs));
+  memset(pcs, 0, sizeof(pcs));
 
   if (standard) {
-    white_pcs[24 - 1] = 2;
-    white_pcs[13 - 1] = 5;
-    white_pcs[8 - 1]  = 3;
-    white_pcs[6 - 1]  = 5;
-
-    black_pcs[24 - 1] = 2;
-    black_pcs[13 - 1] = 5;
-    black_pcs[8 - 1]  = 3;
-    black_pcs[6 - 1]  = 5;
+    for (int i = 0; i < 2; i++) {
+      pcs[i][24 - 1] = 2;
+      pcs[i][13 - 1] = 5;
+      pcs[i][8 - 1]  = 3;
+      pcs[i][6 - 1]  = 5;
+    }
   }
 
   return;
@@ -82,8 +78,7 @@ Board::Board(EncodedBoard b) {
   int i = 0, j = 0, k;
   const unsigned char* a;
 
-  memset(white_pcs, 0, sizeof(white_pcs));
-  memset(black_pcs, 0, sizeof(black_pcs));
+  memset(pcs[i], 0, sizeof(pcs));
 
   for (a = b.data; a < b.data + 10; ++a) {
     unsigned char cur = *a;
@@ -93,10 +88,7 @@ Board::Board(EncodedBoard b) {
         if (i >= 2 || j >= 25) {
           return;
         }
-        if (i == 0)
-          white_pcs[j]++;
-        else
-          black_pcs[j]++;
+        pcs[i][j]++;
       } else {
         if (++j == 25) {
           ++i;
@@ -131,11 +123,7 @@ EncodedBoard Board::encode() const {
   unsigned int i, iBit = 0;
   const unsigned int* j;
   for (i = 0; i < 2; ++i) {
-    const unsigned int* bb;
-    if (i == 0)
-      bb = white_pcs;
-    else
-      bb = black_pcs;
+    const unsigned int* bb = pcs[i];
 
     for (j = bb; j < bb + 25; ++j) {
       const unsigned int nc = *j;

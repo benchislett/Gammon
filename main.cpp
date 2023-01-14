@@ -3,14 +3,13 @@
 #include <iostream>
 
 int main() {
-  Board b(false);
-  b.white_pcs[24 - 1] = 1;
-  b.white_pcs[23 - 1] = 1;
-  b.white_pcs[22 - 1] = 1;
+  Board b(true);
 
-  b.black_pcs[24 - 1] = 1;
-  b.black_pcs[23 - 1] = 1;
-  b.black_pcs[22 - 1] = 1;
+  for (int i = 0; i < 2; i++) {
+    // b.pcs[i][24 - 1] = 1;
+    // b.pcs[i][23 - 1] = 1;
+    // b.pcs[i][22 - 1] = 1;
+  }
 
   std::cout << b.encode().serialize() << std::endl;
   return 0;

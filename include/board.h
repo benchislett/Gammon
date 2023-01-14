@@ -14,8 +14,7 @@ struct EncodedBoard {
 };
 
 struct Board {
-  uint32_t white_pcs[25];
-  uint32_t black_pcs[25];
+  uint32_t pcs[2][25];
 
   Board(bool);
   Board() : Board(true) {}

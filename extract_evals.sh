@@ -1,3 +1,7 @@
-echo "new game 1\nset board $1\nset turn 0\neval" > instructions.txt 
-gnubg --tty -c instructions.txt > output.txt 2> /dev/null
-grep "Evaluator" output.txt -A 6 | tail -n1 >> evals.txt
+split -l $((`wc -l < $1`/10)) $1 $1.split.txt -da 1
+find . -type f | grep .split.txt | grep -v instructions | parallel "python3 $(git rev-parse --show-toplevel)/collect_evals.py {/} {/}.evals.txt"
+rm -f evals.txt
+for i in {0..9}
+do
+  cat $1.split.txt$i.evals.txt >> evals.txt
+done

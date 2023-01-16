@@ -2,7 +2,8 @@
 
 torch::Tensor load_score(const std::string& line) {
   float rawdata[7];
-  int res = sscanf(line.c_str(), "%f %f %f - %f %f %f CL %f", &rawdata[0], &rawdata[1], &rawdata[2], &rawdata[3],
+  // int res = sscanf(line.c_str(), "%f %f %f - %f %f %f CL %f", &rawdata[0], &rawdata[1], &rawdata[2], &rawdata[3],
+  int res = sscanf(line.c_str(), "static: %f %f %f %f %f %f %f", &rawdata[0], &rawdata[1], &rawdata[2], &rawdata[3],
                    &rawdata[4], &rawdata[5], &rawdata[6]);
   std::array<float, 5> data{rawdata[0], rawdata[1], rawdata[2], rawdata[4], rawdata[5]};
   auto tensor = torch::from_blob(data.begin(), {1}, torch::TensorOptions().dtype(torch::kFloat32)).clone();
@@ -55,12 +56,12 @@ CustomDataset load_dataset() {
   CustomDataset dataset;
 
   std::string line;
-  std::ifstream score_file("scores.txt");
+  std::ifstream score_file("opening_scores.txt");
   while (std::getline(score_file, line)) {
     dataset.scores.push_back(load_score(line));
   }
 
-  std::ifstream games_file("games.txt");
+  std::ifstream games_file("openings.txt");
   int i = 0;
   std::string token;
   for (int i = 0; i < dataset.scores.size(); i++) {

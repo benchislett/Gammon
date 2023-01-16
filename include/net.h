@@ -26,6 +26,8 @@ struct CustomDataset : public torch::data::datasets::Dataset<CustomDataset> {
 
   // Return the length of data
   torch::optional<size_t> size() const override;
+
+  void split(double frac, CustomDataset &A, CustomDataset &B) const;
 };
 
 CustomDataset load_dataset();

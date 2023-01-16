@@ -33,6 +33,8 @@ struct Board {
 
   bool make_move(int side, int from, int to);
   void unmake_move(int side, int from, int to, bool hit);
+  void swap();
 
-  void make_fullmove(int side, const Move&);
+  std::array<bool, 4> make_fullmove(int side, const Move&);
+  void unmake_fullmove(int side, const Move&, std::array<bool, 4>);
 };

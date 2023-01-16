@@ -1,12 +1,24 @@
 cmake_minimum_required(VERSION 3.16)
-SET(CMAKE_BUILD_TYPE Debug)
+SET(CMAKE_BUILD_TYPE Release)
 project(main)
 
-# Include project src files
+find_package(Torch REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
+
 include_directories("include/")
 
-# Add your project files
-file(GLOB SRC_FILES *.cpp src/*.cpp)
-add_executable(${PROJECT_NAME} ${SRC_FILES} main.cpp)
+file(GLOB SRC_FILES src/*.cpp)
+file(GLOB HEADER_FILES include/*.h)
+file(GLOB SCRIPTS RELATIVE ${PROJECT_SOURCE_DIR} *.cpp)
 
-# target_compile_options(${PROJECT_NAME} PUBLIC "-fno-omit-frame-pointer" "-g")
+add_library(GammonCore ${SRC_FILES} ${HEADER_FILES})
+target_link_libraries(GammonCore PUBLIC "${TORCH_LIBRARIES}")
+
+message(STATUS "Scripts: ${SCRIPTS}")
+
+foreach(scriptfile ${SCRIPTS})
+  string(REPLACE ".cpp" "" scriptname ${scriptfile})
+  add_executable(${scriptname} ${scriptfile})
+
+  target_link_libraries(${scriptname} GammonCore)
+endforeach(scriptfile ${SCRIPTS})

@@ -213,9 +213,25 @@ void Board::unmake_move(int side, int from, int to, bool hit) {
   pcs[side][from]++;
 }
 
-void Board::make_fullmove(int side, const Move& m) {
+void Board::swap() {
+  for (int j = 0; j < 25; j++) {
+    std::swap(pcs[0][j], pcs[1][j]);
+  }
+}
+
+std::array<bool, 4> Board::make_fullmove(int side, const Move& m) {
+  std::array<bool, 4> hits;
   int n = m.n;
   for (int i = 0; i < n; i++) {
-    make_move(side, m.moves[i].first, m.moves[i].second);
+    hits[i] = make_move(side, m.moves[i].first, m.moves[i].second);
+  }
+
+  return hits;
+}
+
+void Board::unmake_fullmove(int side, const Move& m, std::array<bool, 4> hits) {
+  int n = m.n;
+  for (int i = n - 1; i >= 0; i--) {
+    unmake_move(side, m.moves[i].first, m.moves[i].second, hits[i]);
   }
 }

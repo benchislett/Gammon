@@ -2,7 +2,7 @@
 
 torch::Tensor load_score(const std::string& line) {
         float rawdata[7];
-        int res = sscanf(line.c_str(), "%f %f %f - %f %f %f CL %f", &rawdata[0], &rawdata[1], &rawdata[2], &rawdata[3],
+        int res = sscanf(line.c_str(), "2 ply: %f %f %f %f %f %f %f", &rawdata[0], &rawdata[1], &rawdata[2], &rawdata[3],
                         &rawdata[4], &rawdata[5], &rawdata[6]);
         std::array<float, 5> data{rawdata[0], rawdata[1], rawdata[2], rawdata[4], rawdata[5]};
         auto tensor = torch::from_blob(data.begin(), {1}, torch::TensorOptions().dtype(torch::kFloat32)).clone();

@@ -14,8 +14,8 @@ file(GLOB SCRIPTS RELATIVE ${PROJECT_SOURCE_DIR} *.cpp)
 
 add_library(GammonCore ${SRC_FILES} ${HEADER_FILES})
 target_link_libraries(GammonCore PUBLIC "${TORCH_LIBRARIES}")
-# set_property(TARGET GammonCore PROPERTY CXX_STANDARD 17)
 
+# set_property(TARGET GammonCore PROPERTY CXX_STANDARD 17)
 message(STATUS "Scripts: ${SCRIPTS}")
 
 foreach(scriptfile ${SCRIPTS})

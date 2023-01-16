@@ -4,6 +4,7 @@ project(main)
 
 find_package(Torch REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
+set(CMAKE_CXX_STANDARD 17)
 
 include_directories("include/")
 
@@ -13,6 +14,7 @@ file(GLOB SCRIPTS RELATIVE ${PROJECT_SOURCE_DIR} *.cpp)
 
 add_library(GammonCore ${SRC_FILES} ${HEADER_FILES})
 target_link_libraries(GammonCore PUBLIC "${TORCH_LIBRARIES}")
+# set_property(TARGET GammonCore PROPERTY CXX_STANDARD 17)
 
 message(STATUS "Scripts: ${SCRIPTS}")
 

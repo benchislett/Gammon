@@ -5,11 +5,18 @@
 #include <iostream>
 #include <random>
 #include <string>
+#include <set>
 
 constexpr int MAX_DEPTH = 3;
 
-void generate_opening(Board b, int turn, int depth, std::ofstream& file) {
-        /* recursively determine all possible openings up to *depth* ply */
+/* recursively determine all possible openings up to *depth* ply */
+void generate_opening(Board &b, int depth, std::ofstream& file, std::set<std::string> &unique_positions) {
+        auto position = b.encode().serialize();
+
+        if (unique_positions.find(position) != unique_positions.end()) return;
+        unique_positions.insert(position);
+
+        file << position << '\n';
 
         if (depth >= MAX_DEPTH) return;
 
@@ -20,14 +27,15 @@ void generate_opening(Board b, int turn, int depth, std::ofstream& file) {
                         if (depth == 0) printf("rolling %d, %d at depth 0\n", d1, d2);
 
                         // get legal moves
-                        auto moves = legal_moves(b, turn, d1, d2);
+                        auto moves = legal_moves(b, 0, d1, d2);
                         
                         // recurse on each move
                         for (auto move : moves) {
-                                auto hits = b.make_fullmove(turn, move);
-                                file << b.encode().serialize() << '\n';
-                                generate_opening(b, 1 - turn, depth + 1, file);
-                                b.unmake_fullmove(turn, move, hits);
+                                auto hits = b.make_fullmove(0, move);
+                                b.swap();
+                                generate_opening(b, depth + 1, file, unique_positions);
+                                b.swap();
+                                b.unmake_fullmove(0, move, hits);
                         }
                 }
         }
@@ -41,8 +49,10 @@ int main() {
         std::ofstream file;
         file.open("openings.txt");
 
+        std::set<std::string> unique_positions;
+
         // generate openings
-        generate_opening(b, 0, 0, file);
+        generate_opening(b, 0, file, unique_positions);
 
         // close file
         file.close();

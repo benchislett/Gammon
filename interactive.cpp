@@ -32,6 +32,14 @@ int main() {
       b.swap();
     }
 
+    if (input == "eval") {
+      auto board_tensor = load_board(b.encode().serialize()).reshape({1, 200});
+      auto pred_tensor  = net->forward(board_tensor);
+
+      std::cout << "Bot eval position " << b.encode().serialize() << " with eval " << pred_tensor[0][0].item<float>()
+                << '\n';
+    }
+
     if (input == "botroll") {
       std::cin >> input;
       int d0     = input[0] - '0';
@@ -53,10 +61,9 @@ int main() {
           auto board_tensor = load_board(b.encode().serialize()).reshape({1, 200});
           auto pred_tensor  = net->forward(board_tensor);
 
-          // std::cout << moves[move].serialize() << '\n';
-          // std::cout << "Bot eval: " << pred_tensor[0][0].item<float>() << '\n';
+          move_evals.push_back(1.0 - pred_tensor[0][0].item<float>());
 
-          move_evals.push_back(pred_tensor[0][0].item<float>());
+          std::cout << "Bot eval " << moves[move].serialize() << " with eval " << move_evals.back() << '\n';
 
           b.swap();
           b.unmake_fullmove(botside, moves[move], record);

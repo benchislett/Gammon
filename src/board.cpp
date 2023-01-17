@@ -215,7 +215,9 @@ void Board::unmake_move(int side, int from, int to, bool hit) {
 
 void Board::swap() {
         for (int j = 0; j < 25; j++) {
-                std::swap(pcs[0][j], pcs[1][j]);
+                auto tmp = pcs[0][j];
+                pcs[0][j] = pcs[1][j];
+                pcs[1][j] = tmp;
         }
 }
 

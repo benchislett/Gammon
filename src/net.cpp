@@ -60,7 +60,10 @@ torch::optional<size_t> CustomDataset::size() const {
 void CustomDataset::split(double frac, CustomDataset &A, CustomDataset &B) const {
   std::vector<int> indices(scores.size());
   for (int i = 0; i < size(); i++) indices[i] = i;
-  std::random_shuffle(indices.begin(), indices.end());
+
+  std::random_device rd;
+  std::mt19937 g(rd());
+  std::shuffle(indices.begin(), indices.end(), g);
 
   int nA = (int) (frac * scores.size());
 

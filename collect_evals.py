@@ -9,8 +9,17 @@ commandfile = datafile + ".instructions.cmd"
 
 commands = "new game 1\n"
 
+def execute(cmd):
+    popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
+    for stdout_line in iter(popen.stdout.readline, ""):
+        yield stdout_line 
+    popen.stdout.close()
+    return_code = popen.wait()
+    if return_code:
+        raise subprocess.CalledProcessError(return_code, cmd)
+
 lines=0
-MAX_LINES = 9999999999 # 100
+MAX_LINES = 99999999999999 # 100
 with open(datafile, "r") as f:
     for line in f:
         if lines > MAX_LINES:
@@ -22,9 +31,7 @@ with open(datafile, "r") as f:
 with open(commandfile, "w") as f:
     f.write(commands)
 
-result = subprocess.run(['gnubg', '-t', '-c', commandfile], stdout=subprocess.PIPE)
-result = '\n'.join(filter(lambda s: '2 ply:' in s, result.stdout.decode().split('\n')))
-
 with open(outputfile, "w") as f:
-    f.write(result)
-
+    for eval_line in execute(['gnubg', '-t', '-c', commandfile]):
+        if '2 ply:' in eval_line:
+            f.write(eval_line)

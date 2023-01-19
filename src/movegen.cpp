@@ -11,7 +11,7 @@ std::vector<Move> legal_moves(Board b, int side, int d1, int d2) {
         bool found = false;
 x:
 
-        for (int from1 = d1 - 1; from1 < 25; from1++) {
+        for (int from1 = 0; from1 < 25; from1++) {
                 int to1 = from1 - d1;
                 if (!b.check_move(side, from1, to1))
                         continue;
@@ -20,7 +20,7 @@ x:
 
                 bool found2 = false;
 
-                for (int from2 = d2 - 1; from2 < 25; from2++) {
+                for (int from2 = 0; from2 < 25; from2++) {
                         int to2 = from2 - d2;
                         if (!b.check_move(side, from2, to2))
                                 continue;
@@ -35,7 +35,7 @@ x:
 
                         bool found3 = false;
 
-                        for (int from3 = d2 - 1; from3 < 25; from3++) {
+                        for (int from3 = 0; from3 < 25; from3++) {
                                 int to3 = from3 - d2;
                                 if (!b.check_move(side, from3, to3))
                                         continue;
@@ -45,7 +45,7 @@ x:
 
                                 bool found4 = false;
 
-                                for (int from4 = d2 - 1; from4 < 25; from4++) {
+                                for (int from4 = 0; from4 < 25; from4++) {
                                         int to4 = from4 - d2;
                                         if (!b.check_move(side, from4, to4))
                                                 continue;

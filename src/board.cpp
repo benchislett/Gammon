@@ -144,13 +144,15 @@ EncodedBoard Board::encode() const {
 
 bool Board::on_bar(int side) const { return pcs[side][24] != 0; }
 
-bool Board::can_bear_off(int side) const {
-        for (int i = 6; i < 25; i++) {
+int Board::largest_piece(int side) const {
+        for (int i = 24; i >= 0; i--) {
                 if (pcs[side][i] != 0)
-                        return false;
+                        return i;
         }
-        return true;
+        return -1;
 }
+
+bool Board::can_bear_off(int side) const { return largest_piece(side) < 6; }
 
 bool Board::has_blot(int side, int pos) const { return pos != 24 && pcs[side][pos] == 1; }
 
@@ -176,6 +178,13 @@ bool Board::check_move(int side, int from, int to) const {
 
         if (to < 0 && !can_bear_off(side))
                 return false;
+
+        if (to < 0) {
+                if (!can_bear_off(side))
+                        return false;
+                if (largest_piece(side) > from)
+                        return false;
+        }
 
         return true;
 }

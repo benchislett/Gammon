@@ -4,21 +4,23 @@
 #include <torch/torch.h>
 
 int main() {
-  CustomDataset dataset = load_dataset();
+        LazyCustomDataset dataset{"evals_160k.txt", "openings_160k.txt"};
 
-  auto net = std::make_shared<Net>();
-  torch::load(net, "net.pt");
+        auto net = std::make_shared<Net>();
+        torch::load(net, "net.pt");
 
-  float total_loss = 0.0;
-  for (int i = 0; i < dataset.size(); i++) {
-    auto [data, label] = dataset.get(i);
-    float checkval     = label.item<float>();
+        auto batch_size = 128;
+        auto dataloader = torch::data::make_data_loader<torch::data::samplers::SequentialSampler>(
+            dataset.map(torch::data::transforms::Stack<>()), batch_size);
 
-    auto pred = net->forward(data.reshape({1, 200}));
-    auto loss = torch::mse_loss(pred, label.reshape({1, 1}));
+        double total_loss = 0.0;
+        int batch_index = 0;
+        for (auto &batch : *dataloader) {
+                auto pred = net->forward(batch.data);
+                auto loss = torch::mse_loss(pred, batch.target, torch::Reduction::Sum);
+                total_loss += loss.item<float>();
+                batch_index++;
+        }
 
-    total_loss += loss.item<float>();
-  }
-
-  std::cout << "Total loss: " << total_loss << '\n';
+        std::cout << "Loss (Mean): " << total_loss / (float)(batch_size * (batch_index + 1)) << '\n';
 }

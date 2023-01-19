@@ -6,7 +6,7 @@
 
 typedef unsigned char uchar;
 
-static std::string base64_encode(const std::string& in) {
+static std::string base64_encode(const std::string &in) {
 
         std::string out;
 
@@ -15,19 +15,21 @@ static std::string base64_encode(const std::string& in) {
                 val = (val << 8) + c;
                 valb += 8;
                 while (valb >= 0) {
-                        out.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[(val >> valb) & 0x3F]);
+                        out.push_back(
+                            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[(val >> valb) & 0x3F]);
                         valb -= 6;
                 }
         }
         if (valb > -6)
                 out.push_back(
-                                "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[((val << 8) >> (valb + 8)) & 0x3F]);
+                    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[((val << 8) >> (valb + 8)) &
+                                                                                       0x3F]);
         // while (out.size() % 4)
         //   out.push_back('=');
         return out;
 }
 
-static std::string base64_decode(const std::string& in) {
+static std::string base64_decode(const std::string &in) {
 
         std::string out;
 
@@ -49,7 +51,7 @@ static std::string base64_decode(const std::string& in) {
         return out;
 }
 
-EncodedBoard::EncodedBoard(const std::string& bytes) {
+EncodedBoard::EncodedBoard(const std::string &bytes) {
         std::string out = base64_decode(bytes);
         memcpy(data, out.data(), 10);
 }
@@ -67,8 +69,8 @@ Board::Board(bool standard) {
                 for (int i = 0; i < 2; i++) {
                         pcs[i][24 - 1] = 2;
                         pcs[i][13 - 1] = 5;
-                        pcs[i][8 - 1]  = 3;
-                        pcs[i][6 - 1]  = 5;
+                        pcs[i][8 - 1] = 3;
+                        pcs[i][6 - 1] = 5;
                 }
         }
 
@@ -77,7 +79,7 @@ Board::Board(bool standard) {
 
 Board::Board(EncodedBoard b) {
         int i = 0, j = 0, k;
-        const unsigned char* a;
+        const unsigned char *a;
 
         memset(pcs[i], 0, sizeof(pcs));
 
@@ -105,15 +107,15 @@ Board::Board(EncodedBoard b) {
 static inline void addBits(unsigned char auchKey[10], unsigned int bitPos, unsigned int nBits) {
         unsigned int k = bitPos / 8;
         unsigned int r = (bitPos & 0x7);
-        unsigned int b = (((unsigned int) 0x1 << nBits) - 1) << r;
+        unsigned int b = (((unsigned int)0x1 << nBits) - 1) << r;
 
-        auchKey[k] |= (unsigned char) b;
+        auchKey[k] |= (unsigned char)b;
 
         if (k < 8) {
-                auchKey[k + 1] |= (unsigned char) (b >> 8);
-                auchKey[k + 2] |= (unsigned char) (b >> 16);
+                auchKey[k + 1] |= (unsigned char)(b >> 8);
+                auchKey[k + 2] |= (unsigned char)(b >> 16);
         } else if (k == 8) {
-                auchKey[k + 1] |= (unsigned char) (b >> 8);
+                auchKey[k + 1] |= (unsigned char)(b >> 8);
         }
 }
 
@@ -122,9 +124,9 @@ EncodedBoard Board::encode() const {
         memset(b.data, 0, 10 * sizeof(uint8_t));
 
         unsigned int i, iBit = 0;
-        const unsigned int* j;
+        const unsigned int *j;
         for (i = 0; i < 2; ++i) {
-                const unsigned int* bb = pcs[i];
+                const unsigned int *bb = pcs[i];
 
                 for (j = bb; j < bb + 25; ++j) {
                         const unsigned int nc = *j;
@@ -140,9 +142,7 @@ EncodedBoard Board::encode() const {
         return b;
 }
 
-bool Board::on_bar(int side) const {
-        return pcs[side][24] != 0;
-}
+bool Board::on_bar(int side) const { return pcs[side][24] != 0; }
 
 bool Board::can_bear_off(int side) const {
         for (int i = 6; i < 25; i++) {
@@ -152,13 +152,9 @@ bool Board::can_bear_off(int side) const {
         return true;
 }
 
-bool Board::has_blot(int side, int pos) const {
-        return pos != 24 && pcs[side][pos] == 1;
-}
+bool Board::has_blot(int side, int pos) const { return pos != 24 && pcs[side][pos] == 1; }
 
-bool Board::has_point(int side, int pos) const {
-        return pos != 24 && pcs[side][pos] > 1;
-}
+bool Board::has_point(int side, int pos) const { return pos != 24 && pcs[side][pos] > 1; }
 
 bool Board::check_move(int side, int from, int to) const {
         if (from == to)
@@ -221,7 +217,7 @@ void Board::swap() {
         }
 }
 
-std::array<bool, 4> Board::make_fullmove(int side, const Move& m) {
+std::array<bool, 4> Board::make_fullmove(int side, const Move &m) {
         std::array<bool, 4> hits;
         int n = m.n;
         for (int i = 0; i < n; i++) {
@@ -231,7 +227,7 @@ std::array<bool, 4> Board::make_fullmove(int side, const Move& m) {
         return hits;
 }
 
-void Board::unmake_fullmove(int side, const Move& m, std::array<bool, 4> hits) {
+void Board::unmake_fullmove(int side, const Move &m, std::array<bool, 4> hits) {
         int n = m.n;
         for (int i = n - 1; i >= 0; i--) {
                 unmake_move(side, m.moves[i].first, m.moves[i].second, hits[i]);

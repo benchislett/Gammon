@@ -9,7 +9,7 @@ std::vector<Move> legal_moves(Board b, int side, int d1, int d2) {
 
         bool swapped = false;
         bool found = false;
-        x:
+x:
 
         for (int from1 = d1 - 1; from1 < 25; from1++) {
                 int to1 = from1 - d1;
@@ -51,12 +51,13 @@ std::vector<Move> legal_moves(Board b, int side, int d1, int d2) {
                                                 continue;
                                         found4 = true;
 
-                                        moves.emplace_back(std::make_pair(from1, to1), std::make_pair(from2, to2), std::make_pair(from3, to3),
-                                                        std::make_pair(from4, to4));
+                                        moves.emplace_back(std::make_pair(from1, to1), std::make_pair(from2, to2),
+                                                           std::make_pair(from3, to3), std::make_pair(from4, to4));
                                 }
 
                                 if (!found4)
-                                        moves.emplace_back(std::make_pair(from1, to1), std::make_pair(from2, to2), std::make_pair(from3, to3));
+                                        moves.emplace_back(std::make_pair(from1, to1), std::make_pair(from2, to2),
+                                                           std::make_pair(from3, to3));
 
                                 b.unmake_move(side, from3, to3, hit3);
                         }
@@ -69,7 +70,6 @@ std::vector<Move> legal_moves(Board b, int side, int d1, int d2) {
 
                 if (!found2)
                         moves.emplace_back(std::make_pair(from1, to1));
-                
 
                 b.unmake_move(side, from1, to1, hit1);
         }

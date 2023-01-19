@@ -4,48 +4,53 @@
 #include <fstream>
 #include <torch/torch.h>
 
+torch::Device device(torch::kCPU);
+
+using Dataset = LazyCustomDataset;
+
 int main() {
-  CustomDataset dataset = load_dataset();
-  CustomDataset train, test;
-  dataset.split(0.5, train, test);
+        Dataset dataset{"evals_16M.txt", "openings_16M.txt"};
 
-  auto net = std::make_shared<Net>();
-  /*try {
-    torch::load(net, "net.pt");
-  } catch (...) {
-  }*/
+        auto net = std::make_shared<Net>();
+        /*try {
+                torch::load(net, "net.pt");
+        } catch (...) {
+        }*/
 
-  constexpr int train_batch_size = 128;
-  constexpr int test_batch_size = 1024;
+        net->to(device);
 
-  auto train_data_loader = torch::data::make_data_loader(train.map(torch::data::transforms::Stack<>()), train_batch_size);
-  auto test_data_loader  = torch::data::make_data_loader(test.map(torch::data::transforms::Stack<>()), test_batch_size);
+        constexpr int train_batch_size = 128;
 
-  torch::optim::Adam optimizer(net->parameters(), torch::optim::AdamOptions(0.001));
-  net->train();
+        auto train_data_loader = // torch::data::make_data_loader(train,
+                                 // train_batch_size);
+            torch::data::make_data_loader<torch::data::samplers::RandomSampler>(
+                dataset.map(torch::data::transforms::Stack<>()),
+                torch::data::DataLoaderOptions().batch_size(train_batch_size).workers(128));
+        // 3000 -> 8s
+        torch::optim::Adam optimizer(net->parameters(), torch::optim::AdamOptions(0.001));
+        net->train();
 
-  for (size_t epoch = 1; epoch <= 2000; ++epoch) {
-    size_t batch_index = 0;
-    float total_loss   = 0;
-    for (auto& batch : *train_data_loader) {
-      optimizer.zero_grad();
-      torch::Tensor prediction = net->forward(batch.data);
-      torch::Tensor loss       = torch::mse_loss(prediction, batch.target);
-      total_loss += loss.item<float>();
-      loss.backward();
-      optimizer.step();
-      ++batch_index;
-    }
+        for (size_t epoch = 1; epoch <= 100; ++epoch) {
+                size_t batch_index = 0;
+                float total_loss = 0;
+                for (auto &batch : *train_data_loader) {
+                        optimizer.zero_grad();
+                        torch::Tensor prediction = net->forward(batch.data);
+                        torch::Tensor loss = torch::mse_loss(prediction, batch.target, torch::Reduction::Mean);
+                        double batch_loss = loss.item<float>();
+                        total_loss += batch_loss;
+                        loss.backward();
+                        optimizer.step();
+                        ++batch_index;
 
-    float val_loss = 0;
-    for (auto& batch : *test_data_loader) {
-      torch::Tensor prediction = net->forward(batch.data);
-      torch::Tensor loss       = torch::mse_loss(prediction, batch.target);
-      val_loss += loss.item<float>();
-    }
+                        if (batch_index % 100 == 0) {
+                                std::cout << "Epoch " << epoch << " | Batch " << batch_index
+                                          << " | Batch Loss (Mean): " << batch_loss << '\n';
+                                torch::save(net, "net.pt");
+                        }
+                }
 
-    std::cout << "Epoch: " << epoch << " | Batches Completed: " << batch_index << " | Train Loss: " << total_loss * train_batch_size
-              << " | Val Loss: " << val_loss * test_batch_size << std::endl;
-    torch::save(net, "net.pt");
-  }
+                std::cout << "Epoch: " << epoch << " | Batches Completed: " << batch_index
+                          << " | Train Loss (Mean): " << total_loss / (float)(batch_index + 1) << '\n';
+        }
 }

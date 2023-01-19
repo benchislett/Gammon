@@ -9,7 +9,11 @@ torch::Device device(torch::kCPU);
 using Dataset = LazyCustomDataset;
 
 int main() {
+        std::cout << "Loading dataset...\n";
+
         Dataset dataset{"evals_16M.txt", "openings_16M.txt"};
+
+        std::cout << "Loaded dataset\n";
 
         auto net = std::make_shared<Net>();
         /*try {
@@ -29,6 +33,8 @@ int main() {
         // 3000 -> 8s
         torch::optim::Adam optimizer(net->parameters(), torch::optim::AdamOptions(0.001));
         net->train();
+
+        std::cout << "Starting Training...\n";
 
         for (size_t epoch = 1; epoch <= 100; ++epoch) {
                 size_t batch_index = 0;

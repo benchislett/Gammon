@@ -11,7 +11,7 @@ using Dataset = LazyCustomDataset;
 int main() {
         std::cout << "Loading dataset...\n";
 
-        Dataset dataset{"evals_16M.txt", "openings_16M.txt"};
+        Dataset dataset{"combined_evals_shuf.txt", "combined_games_shuf.txt"};
 
         std::cout << "Loaded dataset\n";
 

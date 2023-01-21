@@ -4,11 +4,14 @@
 #include <fstream>
 #include <iostream>
 #include <random>
+#include <set>
 #include <string>
-#include <unordered_set>
 
 int main() {
-        std::unordered_set<std::string> positions;
+        std::ofstream file;
+        file.open("rollout_positions.txt");
+
+        std::set<std::string> positions;
         for (int i = 0; i < 1000; i++) {
                 Board b(true);
 
@@ -19,8 +22,19 @@ int main() {
                 int turn = 0;
                 int nomoves = 0;
                 while (nomoves < 2) {
-                        if (nomoves == 0)
-                                positions.insert(b.encode().serialize());
+                        if (nomoves == 0) {
+                                if (turn == 1) {
+                                        b.swap();
+                                }
+                                std::string s = b.encode().serialize();
+                                if (positions.find(s) == positions.end()) {
+                                        positions.insert(s);
+                                        file << s << '\n';
+                                }
+                                if (turn == 1) {
+                                        b.swap();
+                                }
+                        }
 
                         auto moves = legal_moves(b, turn, dice(gen), dice(gen));
                         if (moves.size() > 0) {
@@ -37,11 +51,6 @@ int main() {
                 }
         }
 
-        std::ofstream file;
-        file.open("games.txt");
-        for (auto &s : positions) {
-                file << s << '\n';
-        }
         file.close();
 
         return 0;

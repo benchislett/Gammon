@@ -80,5 +80,18 @@ x:
                 goto x;
         }
 
-        return moves;
+        // Filter moves that do not fully utilize the dice
+
+        int longest_move = 0;
+        for (auto &move : moves) {
+                longest_move = std::max(longest_move, move.n);
+        }
+
+        std::vector<Move> long_moves;
+        for (auto &move : moves) {
+                if (move.n == longest_move)
+                        long_moves.push_back(move);
+        }
+
+        return long_moves;
 }

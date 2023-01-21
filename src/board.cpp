@@ -182,7 +182,7 @@ bool Board::check_move(int side, int from, int to) const {
         if (to < 0) {
                 if (!can_bear_off(side))
                         return false;
-                if (largest_piece(side) > from)
+                if (to != -1 && largest_piece(side) > from)
                         return false;
         }
 

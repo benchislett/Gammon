@@ -9,10 +9,10 @@ std::string Move::serialize() const {
                 out += (from == 24) ? "bar" : std::to_string(from + 1);
                 out += "/";
 
-                while (i < n - 1 && moves[i + 1].first == to) {
-                        to = moves[i + 1].second;
-                        i++;
-                }
+                // while (i < n - 1 && moves[i + 1].first == to) {
+                //         to = moves[i + 1].second;
+                //         i++;
+                // }
 
                 out += (to < 0) ? "off" : std::to_string(to + 1);
 

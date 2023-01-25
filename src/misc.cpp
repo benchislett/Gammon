@@ -36,7 +36,10 @@ void ProgressBar::tick(int k) {
 }
 
 int count_lines(std::ifstream &file) {
-        int n = std::count(std::istream_iterator<char>(file >> std::noskipws), {}, '\n');
+        int n = 0;
+        std::string _line;
+        while (std::getline(file, _line))
+                n++;
 
         file.clear();
         file.seekg(0);

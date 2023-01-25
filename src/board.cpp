@@ -52,6 +52,7 @@ static std::string base64_decode(const std::string &in) {
 }
 
 EncodedBoard::EncodedBoard(const std::string &bytes) {
+        assert(bytes.size() == 10);
         std::string out = base64_decode(bytes);
         memcpy(data, out.data(), 10);
 }

@@ -4,7 +4,7 @@
 #include <torch/torch.h>
 
 int main() {
-        LazyCustomDataset dataset{"evals_160k.txt", "openings_160k.txt"};
+        CustomDataset dataset{"evals_160k.txt", "openings_160k.txt"};
 
         auto net = std::make_shared<Net>();
         torch::load(net, "net.pt");

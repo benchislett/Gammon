@@ -17,7 +17,7 @@ struct Net : torch::nn::Module {
         Net();
         torch::Tensor forward(torch::Tensor x);
 
-        torch::nn::Linear fc1{nullptr}, fc2{nullptr};
+        torch::nn::Linear fc1{nullptr}, fc2{nullptr}, fc3{nullptr}, fc4{nullptr};
 };
 
 struct LazyCustomDataset : public torch::data::datasets::Dataset<LazyCustomDataset> {
@@ -48,6 +48,4 @@ struct CustomDataset : public torch::data::datasets::Dataset<CustomDataset> {
 
         // Return the length of data
         torch::optional<size_t> size() const override;
-
-        void split(double frac, CustomDataset &A, CustomDataset &B) const;
 };

@@ -9,10 +9,10 @@
 
 int main() {
         std::ofstream file;
-        file.open("rollout_positions.txt");
+        file.open("rollout_positions_large.txt");
 
         std::set<std::string> positions;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 250000; i++) {
                 Board b(true);
 
                 std::random_device rd;  // obtain a random number from hardware

@@ -39,18 +39,17 @@ torch::Tensor load_board(const std::string &s) {
 
 Net::Net() {
         fc1 = register_module("input", torch::nn::Linear(200, 128));
-        fc2 = register_module("output", torch::nn::Linear(128, 1));
-
-        torch::nn::init::uniform_(fc1->weight, -0.5, 0.5);
-        torch::nn::init::uniform_(fc2->weight, -0.5, 0.5);
-        torch::nn::init::constant_(fc1->bias, 0.001);
-        torch::nn::init::constant_(fc2->bias, 0.001);
+        fc2 = register_module("h1", torch::nn::Linear(128, 32));
+        fc3 = register_module("h2", torch::nn::Linear(32, 8));
+        fc4 = register_module("output", torch::nn::Linear(8, 1));
 }
 
 torch::Tensor Net::forward(torch::Tensor x) {
         x = torch::sigmoid(fc1->forward(x.reshape({x.size(0), 200})));
         // x = torch::dropout(x, /*p=*/0.5, /*train=*/is_training());
         x = torch::sigmoid(fc2->forward(x));
+        x = torch::sigmoid(fc3->forward(x));
+        x = torch::sigmoid(fc4->forward(x));
         return x;
 }
 
@@ -75,7 +74,7 @@ CustomDataset::CustomDataset(const std::string &scores_path, const std::string &
                 std::ifstream score_file(scores_path);
                 ProgressBar load_scores(count_lines(score_file), "Loading Scores");
                 while (std::getline(score_file, line)) {
-                        scores.push_back(std::move(load_score(line)));
+                        scores.push_back(load_score(line));
                         load_scores.tick();
                 }
         }
@@ -83,10 +82,10 @@ CustomDataset::CustomDataset(const std::string &scores_path, const std::string &
         {
                 std::ifstream games_file(games_path);
                 std::string token;
-                ProgressBar load_games(count_lines(games_file), "Loading Games");
+                ProgressBar load_games(scores.size(), "Loading Games");
                 for (int i = 0; i < scores.size(); i++) {
                         games_file >> token;
-                        games.push_back(std::move(load_board(token)));
+                        games.push_back(load_board(token));
                         load_games.tick();
                 }
         }
@@ -99,27 +98,3 @@ torch::data::Example<> CustomDataset::get(size_t index) {
 };
 
 torch::optional<size_t> CustomDataset::size() const { return scores.size(); };
-
-void CustomDataset::split(double frac, CustomDataset &A, CustomDataset &B) const {
-        std::vector<int> indices(scores.size());
-        for (int i = 0; i < size(); i++)
-                indices[i] = i;
-
-        std::random_device rd;
-        std::mt19937 g(rd());
-        std::shuffle(indices.begin(), indices.end(), g);
-
-        int nA = (int)(frac * scores.size());
-
-        int i;
-        for (i = 0; i < nA; i++) {
-                int idx = indices[i];
-                A.games.push_back(games.at(idx).clone());
-                A.scores.push_back(scores.at(idx).clone());
-        }
-        for (; i < scores.size(); i++) {
-                int idx = indices[i];
-                B.games.push_back(games.at(idx).clone());
-                B.scores.push_back(scores.at(idx).clone());
-        }
-}

@@ -11,15 +11,15 @@ using Dataset = LazyCustomDataset;
 int main() {
         std::cout << "Loading dataset...\n";
 
-        Dataset dataset{"combined_evals_shuf.txt", "combined_games_shuf.txt"};
+        Dataset dataset{"rollout_evals_large_partial.txt", "rollout_positions_large_partial.txt"};
 
         std::cout << "Loaded dataset\n";
 
         auto net = std::make_shared<Net>();
-        /*try {
-                torch::load(net, "net.pt");
-        } catch (...) {
-        }*/
+        // try {
+        //         torch::load(net, "net.pt");
+        // } catch (...) {
+        // }
 
         net->to(device);
 
@@ -29,8 +29,8 @@ int main() {
                                  // train_batch_size);
             torch::data::make_data_loader<torch::data::samplers::RandomSampler>(
                 dataset.map(torch::data::transforms::Stack<>()),
-                torch::data::DataLoaderOptions().batch_size(train_batch_size).workers(128));
-        // 3000 -> 8s
+                torch::data::DataLoaderOptions().batch_size(train_batch_size).workers(32));
+
         torch::optim::Adam optimizer(net->parameters(), torch::optim::AdamOptions(0.001));
         net->train();
 
@@ -49,7 +49,7 @@ int main() {
                         optimizer.step();
                         ++batch_index;
 
-                        if (batch_index % 100 == 0) {
+                        if (batch_index % 500 == 0) {
                                 std::cout << "Epoch " << epoch << " | Batch " << batch_index
                                           << " | Batch Loss (Mean): " << batch_loss << '\n';
                                 torch::save(net, "net.pt");

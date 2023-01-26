@@ -10,6 +10,8 @@
 #include <torch/torch.h>
 #include <unordered_set>
 
+torch::Device device(torch::kCPU);
+
 int main() {
 
         Board b(true);
@@ -21,6 +23,10 @@ int main() {
 
         auto net = std::make_shared<Net>();
         torch::load(net, "net.pt");
+
+        net->to(device);
+
+        net->eval();
 
         std::string input = "start";
         int botside = 0;

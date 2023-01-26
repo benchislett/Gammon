@@ -4,6 +4,7 @@
 #include "misc.h"
 
 #include <array>
+#include <concepts>
 #include <fstream>
 #include <memory>
 #include <string>
@@ -18,6 +19,7 @@ struct Net : torch::nn::Module {
         torch::Tensor forward(torch::Tensor x);
 
         torch::nn::Linear fc1{nullptr}, fc2{nullptr}, fc3{nullptr}, fc4{nullptr};
+        torch::nn::BatchNorm1d bn1{nullptr}, bn2{nullptr}, bn3{nullptr};
 };
 
 struct LazyCustomDataset : public torch::data::datasets::Dataset<LazyCustomDataset> {
@@ -49,3 +51,30 @@ struct CustomDataset : public torch::data::datasets::Dataset<CustomDataset> {
         // Return the length of data
         torch::optional<size_t> size() const override;
 };
+
+// requires std::derived_from<T, torch::data::datasets::Dataset<T>>
+template <typename T> struct ViewDataset : public torch::data::datasets::Dataset<ViewDataset<T>> {
+        std::shared_ptr<T> dataset;
+
+        int offset;
+        int len;
+
+        ViewDataset(std::shared_ptr<T> d, int o, int s) : dataset(d), offset(o), len(s) {}
+
+        torch::data::Example<> get(size_t index) override { return dataset->get(index + offset); };
+
+        torch::optional<size_t> size() const override { return len; };
+};
+
+template <typename T>
+        requires std::derived_from<T, torch::data::datasets::Dataset<T>>
+std::pair<ViewDataset<T>, ViewDataset<T>> split_dataset(std::shared_ptr<T> ds, float frac) {
+        int N = ds->size().value();
+
+        int o0 = 0;
+        int n0 = (int)(frac * N);
+        int o1 = n0;
+        int n1 = N - n0;
+
+        return std::make_pair(ViewDataset<T>(ds, o0, n0), ViewDataset<T>(ds, o1, n1));
+}

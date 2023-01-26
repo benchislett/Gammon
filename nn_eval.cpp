@@ -3,15 +3,23 @@
 
 #include <torch/torch.h>
 
+using Dataset = CustomDataset;
+
+torch::Device device(torch::kCPU);
+
 int main() {
-        CustomDataset dataset{"evals_160k.txt", "openings_160k.txt"};
+        auto dataset = std::make_shared<Dataset>("evals_160k.txt", "openings_160k.txt");
 
         auto net = std::make_shared<Net>();
         torch::load(net, "net.pt");
 
+        net->to(device);
+
+        net->eval();
+
         auto batch_size = 128;
         auto dataloader = torch::data::make_data_loader<torch::data::samplers::SequentialSampler>(
-            dataset.map(torch::data::transforms::Stack<>()), batch_size);
+            dataset->map(torch::data::transforms::Stack<>()), batch_size);
 
         double total_loss = 0.0;
         int batch_index = 0;

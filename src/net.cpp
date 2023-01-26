@@ -38,17 +38,31 @@ torch::Tensor load_board(const std::string &s) {
 }
 
 Net::Net() {
-        fc1 = register_module("input", torch::nn::Linear(200, 128));
-        fc2 = register_module("h1", torch::nn::Linear(128, 32));
-        fc3 = register_module("h2", torch::nn::Linear(32, 8));
-        fc4 = register_module("output", torch::nn::Linear(8, 1));
+        bn1 = register_module("batchnorm 1", torch::nn::BatchNorm1d{200});
+        bn2 = register_module("batchnorm 2", torch::nn::BatchNorm1d{256});
+        bn3 = register_module("batchnorm 3", torch::nn::BatchNorm1d{256});
+
+        fc1 = register_module("input", torch::nn::Linear(200, 256));
+        fc2 = register_module("h1", torch::nn::Linear(256, 256));
+        fc3 = register_module("h2", torch::nn::Linear(256, 256));
+        fc4 = register_module("output", torch::nn::Linear(256, 1));
+
+        // torch::nn::init::uniform_(fc1->weight, -0.5, 0.5);
+        // torch::nn::init::uniform_(fc2->weight, -0.5, 0.5);
+        // torch::nn::init::uniform_(fc3->weight, -0.5, 0.5);
+        // torch::nn::init::uniform_(fc4->weight, -0.5, 0.5);
+
+        torch::nn::init::normal_(fc1->bias);
+        torch::nn::init::normal_(fc2->bias);
+        torch::nn::init::normal_(fc3->bias);
+        torch::nn::init::normal_(fc4->bias);
 }
 
 torch::Tensor Net::forward(torch::Tensor x) {
-        x = torch::sigmoid(fc1->forward(x.reshape({x.size(0), 200})));
-        // x = torch::dropout(x, /*p=*/0.5, /*train=*/is_training());
-        x = torch::sigmoid(fc2->forward(x));
-        x = torch::sigmoid(fc3->forward(x));
+        x = torch::relu(fc1->forward(x.reshape({x.size(0), 200})));
+        // x = torch::dropout(x, 0.5, is_training());
+        x = torch::relu(fc2->forward(x));
+        x = torch::relu(fc3->forward(x));
         x = torch::sigmoid(fc4->forward(x));
         return x;
 }

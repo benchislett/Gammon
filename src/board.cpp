@@ -52,7 +52,7 @@ static std::string base64_decode(const std::string &in) {
 }
 
 EncodedBoard::EncodedBoard(const std::string &bytes) {
-        assert(bytes.size() == 10);
+        assert(bytes.size() > 0);
         std::string out = base64_decode(bytes);
         memcpy(data, out.data(), 10);
 }
@@ -188,6 +188,23 @@ bool Board::check_move(int side, int from, int to) const {
         }
 
         return true;
+}
+
+bool Board::is_race() const {
+        if (on_bar(0) || on_bar(1))
+                return false;
+
+        int p0_max = -1;
+        int p1_max = -1;
+
+        for (int i = 0; i < 25; i++) {
+                if (pcs[0][i])
+                        p0_max = i;
+                if (pcs[1][i])
+                        p1_max = i;
+        }
+
+        return (23 - p1_max) > p0_max;
 }
 
 bool Board::make_move(int side, int from, int to) {

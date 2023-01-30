@@ -6,14 +6,14 @@
 
 torch::Device device(torch::kCPU);
 
-using Dataset = LazyCustomDataset;
+using Dataset = CustomDataset;
 
 int main() {
         std::cout << "Loading dataset...\n";
 
         auto dataset = // std::make_shared<Dataset>("evals_160k.txt", "openings_160k.txt");
                        //     std::make_shared<ViewDataset<Dataset>>(
-            std::make_shared<Dataset>("rollout_evals_large_partial.txt", "rollout_positions_large_partial.txt");
+            std::make_shared<Dataset>("tmp3/evals_partial.txt", "tmp3/games_partial.txt");
 
         auto [train, test] = split_dataset(dataset, 0.9);
 
@@ -37,7 +37,7 @@ int main() {
             test.map(torch::data::transforms::Stack<>()),
             torch::data::DataLoaderOptions().batch_size(batch_size).workers(32));
 
-        torch::optim::Adam optimizer(net->parameters(), torch::optim::AdamOptions(3e-4));
+        torch::optim::Adam optimizer(net->parameters(), torch::optim::AdamOptions(1e-3));
         net->train();
 
         std::cout << "Starting Training...\n";

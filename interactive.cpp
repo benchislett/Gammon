@@ -22,11 +22,22 @@ int main() {
         std::cout << "New game\n";
 
         auto net = std::make_shared<Net>();
-        torch::load(net, "net.pt");
+        torch::load(net, "models_archive/net_4x256_noregularize_relu_sigmoid.pt");
+
+        auto racenet = std::make_shared<DeepNet>();
+        torch::load(racenet, "models_archive/net_race_5x512_32_noregularize_relu_sigmoid.pt");
 
         net->to(device);
+        racenet->to(device);
 
         net->eval();
+        racenet->eval();
+
+        auto predict = [&](const Board &b) {
+                auto board_tensor = load_board(b.encode().serialize()).reshape({1, 200});
+                auto pred_tensor = (b.is_race() ? racenet->forward(board_tensor) : net->forward(board_tensor));
+                return pred_tensor[0][0].item<float>();
+        };
 
         std::string input = "start";
         int botside = 0;
@@ -39,11 +50,8 @@ int main() {
                 }
 
                 if (input == "eval") {
-                        auto board_tensor = load_board(b.encode().serialize()).reshape({1, 200});
-                        auto pred_tensor = net->forward(board_tensor);
-
-                        std::cout << "Bot eval position " << b.encode().serialize() << " with eval "
-                                  << pred_tensor[0][0].item<float>() << '\n';
+                        std::cout << "Bot eval position " << b.encode().serialize() << " with eval " << predict(b)
+                                  << '\n';
                 }
 
                 if (input == "botroll") {
@@ -63,10 +71,7 @@ int main() {
                                 for (int move = 0; move < moves.size(); move++) {
                                         auto record = b.make_fullmove(botside, moves[move]);
 
-                                        auto board_tensor = load_board(b.encode().serialize()).reshape({1, 200});
-                                        auto pred_tensor = net->forward(board_tensor);
-
-                                        move_evals.push_back(1.0 - pred_tensor[0][0].item<float>());
+                                        move_evals.push_back(1.0 - predict(b));
 
                                         std::cout << "Bot eval " << moves[move].serialize() << " with eval "
                                                   << move_evals.back() << " (board " << b.encode().serialize() << ")\n";

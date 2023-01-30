@@ -8,7 +8,7 @@ using Dataset = CustomDataset;
 torch::Device device(torch::kCPU);
 
 int main() {
-        auto dataset = std::make_shared<Dataset>("evals_160k.txt", "openings_160k.txt");
+        auto dataset = std::make_shared<Dataset>("tmp3/evals_partial.txt", "tmp3/games_partial.txt");
 
         auto net = std::make_shared<Net>();
         torch::load(net, "net.pt");

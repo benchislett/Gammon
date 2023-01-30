@@ -12,7 +12,15 @@ torch::Tensor load_score(const std::string &line) {
         int res = sscanf(line.c_str(), " 2 ply: %f   %f   %f   %f   %f   %f   %f   ", &rawdata[0], &rawdata[1],
                          &rawdata[2], &rawdata[3], &rawdata[4], &rawdata[5], &rawdata[6]);
         if (res != 7) {
-                std::cerr << "Failed to read line \"" << line << "\"\n";
+                res = sscanf(line.c_str(), "%f %f %f %f %f %f %f", &rawdata[0], &rawdata[1], &rawdata[2], &rawdata[3],
+                             &rawdata[4], &rawdata[5], &rawdata[6]);
+                if (res != 7) {
+                        res = sscanf(line.c_str(), "%f %f", &rawdata[0], &rawdata[1]);
+                        if (res != 2) {
+
+                                std::cerr << "Failed to read line \"" << line << "\"\n";
+                        }
+                }
         }
         std::array<float, 5> data{rawdata[0], rawdata[1], rawdata[2], rawdata[4], rawdata[5]};
         auto tensor =
@@ -38,19 +46,10 @@ torch::Tensor load_board(const std::string &s) {
 }
 
 Net::Net() {
-        bn1 = register_module("batchnorm 1", torch::nn::BatchNorm1d{200});
-        bn2 = register_module("batchnorm 2", torch::nn::BatchNorm1d{256});
-        bn3 = register_module("batchnorm 3", torch::nn::BatchNorm1d{256});
-
         fc1 = register_module("input", torch::nn::Linear(200, 256));
         fc2 = register_module("h1", torch::nn::Linear(256, 256));
         fc3 = register_module("h2", torch::nn::Linear(256, 256));
         fc4 = register_module("output", torch::nn::Linear(256, 1));
-
-        // torch::nn::init::uniform_(fc1->weight, -0.5, 0.5);
-        // torch::nn::init::uniform_(fc2->weight, -0.5, 0.5);
-        // torch::nn::init::uniform_(fc3->weight, -0.5, 0.5);
-        // torch::nn::init::uniform_(fc4->weight, -0.5, 0.5);
 
         torch::nn::init::normal_(fc1->bias);
         torch::nn::init::normal_(fc2->bias);
@@ -67,11 +66,38 @@ torch::Tensor Net::forward(torch::Tensor x) {
         return x;
 }
 
+DeepNet::DeepNet() {
+        fc1 = register_module("input", torch::nn::Linear(200, 512));
+        fc2 = register_module("h1", torch::nn::Linear(512, 512));
+        fc3 = register_module("h2", torch::nn::Linear(512, 512));
+        fc4 = register_module("h3", torch::nn::Linear(512, 512));
+        fc5 = register_module("h4", torch::nn::Linear(512, 32));
+        fc6 = register_module("output", torch::nn::Linear(32, 1));
+
+        torch::nn::init::normal_(fc1->bias);
+        torch::nn::init::normal_(fc2->bias);
+        torch::nn::init::normal_(fc3->bias);
+        torch::nn::init::normal_(fc4->bias);
+        torch::nn::init::normal_(fc5->bias);
+        torch::nn::init::normal_(fc6->bias);
+}
+
+torch::Tensor DeepNet::forward(torch::Tensor x) {
+        x = torch::relu(fc1->forward(x.reshape({x.size(0), 200})));
+        // x = torch::dropout(x, 0.5, is_training());
+        x = torch::relu(fc2->forward(x));
+        x = torch::relu(fc3->forward(x));
+        x = torch::relu(fc4->forward(x));
+        x = torch::relu(fc5->forward(x));
+        x = torch::sigmoid(fc6->forward(x));
+        return x;
+}
+
 torch::data::Example<> LazyCustomDataset::get(size_t index) {
         std::string score_line, board_line;
         file_lock->lock();
         games_file->seekg(15 * index);
-        scores_file->seekg(69 * index);
+        scores_file->seekg(42 * index);
         std::getline(*games_file, board_line);
         std::getline(*scores_file, score_line);
         file_lock->unlock();

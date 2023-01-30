@@ -31,6 +31,7 @@ struct Board {
         bool has_blot(int side, int pos) const;
         bool has_point(int side, int pos) const;
         bool check_move(int side, int from, int to) const;
+        bool is_race() const;
 
         bool make_move(int side, int from, int to);
         void unmake_move(int side, int from, int to, bool hit);

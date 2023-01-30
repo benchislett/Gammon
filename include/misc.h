@@ -6,17 +6,19 @@
 #include <iterator>
 
 struct ProgressBar {
-  int n;
-  double progress;
+        int n;
+        double progress;
 
-  ProgressBar(int nSteps, const std::string& title = "") : n(nSteps), progress(0.0) {
-    if (!title.empty())
-      std::cout << title << '\n';
-    show();
-  }
+        ProgressBar(int nSteps, const std::string &title = "") : n(nSteps), progress(0.0) {
+                if (!title.empty())
+                        std::cout << title << '\n';
+                show();
+        }
 
-  void show() const;
-  void tick(int k = 1);
+        void show() const;
+        void tick(int k = 1);
+
+        ~ProgressBar();
 };
 
-int count_lines(std::ifstream& file);
+int count_lines(std::ifstream &file);

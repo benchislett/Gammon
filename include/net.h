@@ -19,7 +19,13 @@ struct Net : torch::nn::Module {
         torch::Tensor forward(torch::Tensor x);
 
         torch::nn::Linear fc1{nullptr}, fc2{nullptr}, fc3{nullptr}, fc4{nullptr};
-        torch::nn::BatchNorm1d bn1{nullptr}, bn2{nullptr}, bn3{nullptr};
+};
+
+struct DeepNet : torch::nn::Module {
+        DeepNet();
+        torch::Tensor forward(torch::Tensor x);
+
+        torch::nn::Linear fc1{nullptr}, fc2{nullptr}, fc3{nullptr}, fc4{nullptr}, fc5{nullptr}, fc6{nullptr};
 };
 
 struct LazyCustomDataset : public torch::data::datasets::Dataset<LazyCustomDataset> {

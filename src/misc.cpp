@@ -35,6 +35,8 @@ void ProgressBar::tick(int k) {
         }
 }
 
+ProgressBar::~ProgressBar() { std::cout << '\n'; }
+
 int count_lines(std::ifstream &file) {
         int n = 0;
         std::string _line;

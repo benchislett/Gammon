@@ -48,3 +48,13 @@ int count_lines(std::ifstream &file) {
 
         return n;
 }
+
+int line_length(std::ifstream &file) {
+        std::string _line;
+        std::getline(file, _line);
+
+        file.clear();
+        file.seekg(0);
+
+        return _line.size();
+}

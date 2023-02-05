@@ -43,8 +43,8 @@ torch::Tensor load_board(const std::string &s) {
 torch::data::Example<> LazyCustomDataset::get(size_t index) {
         std::string score_line, board_line;
         file_lock->lock();
-        games_file->seekg(15 * index);
-        scores_file->seekg(42 * index);
+        games_file->seekg((line_len_games + 1) * index);
+        scores_file->seekg((line_len_scores + 1) * index);
         std::getline(*games_file, board_line);
         std::getline(*scores_file, score_line);
         file_lock->unlock();

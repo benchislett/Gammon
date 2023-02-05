@@ -22,3 +22,4 @@ struct ProgressBar {
 };
 
 int count_lines(std::ifstream &file);
+int line_length(std::ifstream &file);

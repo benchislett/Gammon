@@ -18,12 +18,13 @@ struct LazyCustomDataset : public torch::data::datasets::Dataset<LazyCustomDatas
         std::shared_ptr<std::ifstream> scores_file;
         std::shared_ptr<std::ifstream> games_file;
         std::shared_ptr<std::mutex> file_lock;
-        int line_cnt;
+        int line_cnt, line_len_scores, line_len_games;
 
         LazyCustomDataset(const std::string &scores_path, const std::string &games_path)
             : scores_file{std::make_shared<std::ifstream>(scores_path)}, games_file{std::make_shared<std::ifstream>(
                                                                              games_path)},
-              file_lock(std::make_shared<std::mutex>()), line_cnt(count_lines(*scores_file)) {}
+              file_lock(std::make_shared<std::mutex>()), line_cnt(count_lines(*scores_file)),
+              line_len_scores(line_length(*scores_file)), line_len_games(line_length(*games_file)) {}
 
         // Override get() function to return tensor at location index
         torch::data::Example<> get(size_t index) override;

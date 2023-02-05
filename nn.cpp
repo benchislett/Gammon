@@ -5,7 +5,7 @@
 #include <fstream>
 #include <torch/torch.h>
 
-using Dataset = CustomDataset;
+using Dataset = LazyCustomDataset;
 
 int main() {
         std::cout << "Loading dataset...\n";

@@ -1,4 +1,5 @@
 #include "board.h"
+#include "dataset.h"
 #include "movegen.h"
 #include "net.h"
 
@@ -9,8 +10,6 @@
 #include <string>
 #include <torch/torch.h>
 #include <unordered_set>
-
-torch::Device device(torch::kCPU);
 
 int main() {
 

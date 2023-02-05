@@ -1,4 +1,5 @@
 #include "board.h"
+#include "dataset.h"
 #include "net.h"
 
 #include <torch/torch.h>

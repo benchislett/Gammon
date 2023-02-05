@@ -44,7 +44,8 @@ void generate_opening(Board &b, int depth, std::ofstream &file, std::set<std::st
         }
 }
 
-int main() {
+int main(int argc, char **argv) {
+
         // generate starting board
         Board b(true);
 

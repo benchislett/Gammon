@@ -1,11 +1,10 @@
 #include "board.h"
+#include "dataset.h"
 #include "net.h"
 
 #include <torch/torch.h>
 
 using Dataset = LazyCustomDataset;
-
-torch::Device device(torch::kCPU);
 
 int main() {
         auto dataset = std::make_shared<Dataset>("tmp3/evals_partial.txt", "tmp3/games_partial.txt");

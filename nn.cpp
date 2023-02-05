@@ -1,10 +1,9 @@
 #include "board.h"
+#include "dataset.h"
 #include "net.h"
 
 #include <fstream>
 #include <torch/torch.h>
-
-torch::Device device(torch::kCPU);
 
 using Dataset = CustomDataset;
 
